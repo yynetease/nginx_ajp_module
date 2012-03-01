@@ -333,6 +333,7 @@ get_res_unknown_header_by_str(ngx_str_t *name,
     return NGX_OK;
 }
 
+static ngx_str_t ngx_http_proxy_version = ngx_string("HTTP/1.0");
 
 /*
  * Message structure
@@ -406,14 +407,15 @@ ajp_marshal_into_msgb(ajp_msg_t *msg,
         return NGX_ERROR;
     }
 
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, log, 0,
-            "Into ajp_marshal_into_msgb, uri: \"%V\"", &uri);
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, log, 0,
+            "Into ajp_marshal_into_msgb, uri: \"%V\", protocol: \"%V\"",
+            &uri, &ngx_http_proxy_version);
 
     ajp_msg_reset(msg);
 
     if (ajp_msg_append_uint8(msg, CMD_AJP13_FORWARD_REQUEST)         ||
             ajp_msg_append_uint8(msg, method)                        ||
-            ajp_msg_append_string(msg, &r->http_protocol)            ||
+            ajp_msg_append_string(msg, &ngx_http_proxy_version)      ||
             ajp_msg_append_string(msg, &uri)                         ||
             ajp_msg_append_string(msg, remote_addr)                  ||
             ajp_msg_append_string(msg, remote_host)                  ||
